@@ -1,0 +1,102 @@
+How to get ROS Fuerte up and running on Ubuntu 11.10
+with CRAM, LISP, Simulation (PR2) and emacs
+
+Should questions arise, drop a mail at winkler@cs.uni-bremen.de .
+
+1. Install Ubuntu (11.10)
+2. Install GNOME (apt-get install gnome) and then switch to it -> GNOME Classic
+3. Add ROS packet source:
+   IMPORTANT! READ THIS!
+   IF you decide not to use Ubuntu 11.10, replace the term "oneiric" in the following commands by for example "precise" for Ubuntu 12.04.
+   Otherwise, things will not work out.
+
+   Add the (faster) ROS-mirror from Uni Freiburg if you're residing in germany:
+   sudo sh -c 'echo "deb http://ros.informatik.uni-freiburg.de/packages/ros/ubuntu oneiric main" > /etc/apt/sources.list.d/ros-latest.list'
+
+   If you reside somewhere else use the official repositories:
+   sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu oneiric main" > /etc/apt/sources.list.d/ros-latest.list'
+4. Import ros key:
+   wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
+5. Update apt sources:
+   sudo apt-get update
+6. Install ROS fuerte desktop system:
+   sudo apt-get install ros-fuerte-desktop-full
+7. Install pip and other python tools:
+   sudo apt-get install python-setuptools python-pip
+8. Install rosinstall, the vcstools and rosdep:
+   sudo pip install -U rosinstall vcstools rosdep
+9. Make a working directory:
+   mkdir -p ~/work/ros/fuerte/workspace
+10. Initialize the workspace:
+   cd ~/work/ros/fuerte && rosws init . /opt/ros/fuerte/
+11. Add the 'source' command to your .bashrc:
+   In "~/.bashrc", append this line:
+   [ -f $HOME/work/ros/fuerte/setup.bash ] && . $HOME/work/ros/fuerte/setup.bash
+   After this, you have to restart the terminal application (or source the setup.bash)
+12. Add a few more packages for PR2:
+   sudo apt-get install ros-fuerte-pr2-common ros-fuerte-pr2-simulator
+13. After this step, do necessary Ubuntu updates (that might have popped up):
+   update-manager
+14. Install git:
+   sudo apt-get install git
+15. Install arm-navigation:
+   sudo apt-get install ros-fuerte-arm-navigation
+16. Install PR2 teleoperation apps:
+   sudo apt-get install ros-fuerte-pr2-teleop-app
+17. Test run of the PR2 teleoperation:
+   By now, you should be able to control the PR2 in the simulation using your keyboard.
+   17.1. Start Gazebo with the PR2 in it:
+         roslaunch pr2_gazebo pr2_empty_world.launch
+         Gazebo should pop up and display a model of the PR2 robot.
+   17.2. Start the keyboard teleoperation app (in a second Terminal):
+         roslaunch pr2_teleop teleop_keyboard.launch
+         Do whatever the command line says and observe the PR2 behavior in the simulation.
+18. Check out the CRAM packages:
+   roscd
+   rosws set cram_highlevel --git https://github.com/moesenle/cram_highlevel.git
+   rosws set cram_pr2 --git https://github.com/moesenle/cram_pr2.git
+   rosws set cram_physics --git https://github.com/moesenle/cram_physics.git
+   rosws set cram_pl --git http://code.in.tum.de/git/cram-pl.git
+   roslocate info roslisp_common | rosws merge -
+19. Install roslisp:
+   sudo apt-get install ros-fuerte-roslisp-common ros-fuerte-roslisp-support
+20. Install KnowRob:
+   sudo apt-get install ros-fuerte-knowrob
+21. Install the articulation modules for the PR2:
+   roscd
+   rosws set articulation --svn http://alufr-ros-pkg.googlecode.com/svn/trunk/articulation
+   rosws set articulation_pr2 --svn http://alufr-ros-pkg.googlecode.com/svn/branches/articulation-experimental/articulation_pr2
+   rosws set freiburg_tools --svn http://alufr-ros-pkg.googlecode.com/svn/trunk/freiburg_tools
+22. Install GSL dev:
+   sudo apt-get install libgsl0-dev
+23. Install PR2 manipulation capabilities for objects:
+   sudo apt-get install ros-fuerte-pr2-object-manipulation
+24. Install mapping components from TUM:
+   roscd
+   rosws set mapping --git http://code.in.tum.de/git/mapping.git
+25. Include the mc_graspable components from Thomas Ruehr to make cram executives for PR2 run:
+   rosws set mc_graspable --git https://github.com/ruehr/mc_graspable.git
+25.1 Update
+   rosws update
+26. Switch branches for handle_detection to new fuerte version:
+   roscd handle_detection
+   git checkout fuerte
+27. Just to be sure, update all sources from rosws:
+   roscd
+   rosws update
+28. Check to see if the PR2 process modules are compiling:
+   rosmake pr2_manipulation_process_module
+   rosmake pr2_navigation_process_module
+   If this is the case, you're good to go and the CRAM basics should run just fine.
+29. Install emacs and the slime REPL for LISP:
+   sudo apt-get install emacs rosemacs-el paredit-el
+   You can run emacs in the LISP REPL with:
+   rosrun roslisp_repl repl
+30. Add this line to your "~/.bashrc":
+   export ROBOT=sim
+31. Install the python scipy module (for PR2 Manipulation Process Module):
+   sudo apt-get install python-scipy
+
+
+NOTE(winkler):
+        I removed the dependencies in articulation_pr2 and articulation_modules to "eigen". This compiles successfully as eigen is now a system dependency (lib). Somehow, the dependencies in the manifest.xml files wasn't removed. Check later.
