@@ -96,7 +96,3 @@ Should questions arise, drop a mail at winkler@cs.uni-bremen.de .
    export ROBOT=sim
 31. Install the python scipy module (for PR2 Manipulation Process Module):
    sudo apt-get install python-scipy
-
-
-NOTE(winkler):
-        I removed the dependencies in articulation_pr2 and articulation_modules to "eigen". This compiles successfully as eigen is now a system dependency (lib). Somehow, the dependencies in the manifest.xml files wasn't removed. Check later.
